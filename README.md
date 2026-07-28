@@ -13,7 +13,7 @@ Phát triển cho học phần **Hệ điều hành (Operating Systems)** / **Ng
 ---
 
 ## 📌 Mục lục
-- [Tính năng](#-tính-năng)<img width="2400" height="1200" alt="wait_time_chart" src="https://github.com/user-attachments/assets/277e7ed9-e603-4a28-afed-2cb5e3d53418" />
+- [Tính năng](#-tính-năng)
 - [Thuật toán & So sánh Lý thuyết](#-thuật-toán--so-sánh-lý-thuyết)
 - [Mô hình Toán học & Chỉ số Đánh giá](#-mô-hình-toán-học--chỉ-số-đánh-giá)
 - [Cấu trúc Thư mục](#-cấu-trúc-thư-mục)
@@ -48,19 +48,57 @@ Hệ thống đã cài đặt và đánh giá 5 thuật toán lập lịch cốt
 
 ---
 
-## 📐 Mô hình Toán học & Chỉ số Đánh giá
+## 📐 Cơ sở Toán học của Support Vector Regression (SVR)
+Vì thời gian thực thi của tác vụ tỷ lệ phi tuyến tính với kích thước dữ liệu đầu vào (độ phức tạp thuật toán $O(N \log N)$ hoặc $O(N^2)$), mô hình áp dụng thuật toán **SVR với hàm nhân Radial Basis Function (RBF Kernel)**.
 
-Hệ thống đánh giá hiệu năng dựa trên 4 chỉ số chuẩn mực trong Hệ điều hành:
+Bài toán tối ưu hóa của SVR được phát biểu dưới dạng:
 
-1. **Thời gian hoàn tất ($Completion\ Time - CT$):** Thời điểm tiến trình kết thúc thực thi.
-2. **Thời gian lưu lại ($Turnaround\ Time - TAT$):**
-   $$TAT = CT - Arrival\ Time$$
-3. **Thời gian chờ ($Waiting\ Time - WT$):**
-   $$WT = TAT - Burst\ Time$$
-4. **Hiệu suất sử dụng CPU ($CPU\ Utilization$):**
-   $$CPU\ Utilization = \left( \frac{\sum Burst\ Time}{Total\ Simulation\ Time} \right) \times 100\%$$
+$$\min_{w, b, \xi, \xi^*} \frac{1}{2} \|w\|^2 + C \sum_{i=1}^{n} (\xi_i + \xi_i^*)$$
+
+Thỏa mãn các điều kiện ràng buộc:
+
+$$\begin{cases}
+y_i - w^T \phi(x_i) - b \le \epsilon + \xi_i \\
+w^T \phi(x_i) + b - y_i \le \epsilon + \xi_i^* \\
+\xi_i, \xi_i^* \ge 0
+\end{cases}$$
+
+**Trong đó:**
+* $C$: Tham số phạt chính quy hóa (Regularization parameter).
+* $\epsilon$: Phạm vi vùng không phạt sai số (Epsilon-insensitive tube).
+* $\phi(x)$: Hàm ánh xạ đặc trưng thông qua **RBF Kernel**:
+
+$$K(x_i, x_j) = \exp\left(-\gamma \|x_i - x_j\|^2\right)$$
 
 ---
+
+## 🛠️ Hiện thực hóa huấn luyện bằng Scikit-Learn
+
+Mô hình được huấn luyện với quy trình chuẩn hóa dữ liệu và cấu hình siêu tham số tối ưu:
+
+* **Phân chia dữ liệu:** $80\%$ dành cho huấn luyện (Train Set) và $20\%$ dành cho kiểm thử độc lập (Test Set) sử dụng `train_test_split()`.
+* **Chuẩn hóa đặc trưng:** Áp dụng `StandardScaler` để chuyển đổi các đặc trưng về phân phối chuẩn $z = \frac{x - \mu}{\sigma}$ (kỳ vọng bằng $0$, phương sai bằng $1$).
+* **Siêu tham số mô hình SVR (Kernel RBF):**
+  * $C = 100$
+  * $\gamma = 0.1$
+  * $\epsilon = 0.1$
+## 📐 Chỉ số Đánh giá
+Để đánh giá năng lực dự đoán thời gian thực thi tác vụ của mô hình **Support Vector Regression (SVR)**, hệ thống sử dụng ba độ do thống kê tiêu chuẩn để lượng hóa sai số giữa giá trị dự báo ($\hat{y}_i$) và giá trị thực tế ($y_i$):
+
+### 1. RMSE (Root Mean Squared Error) - Sai số bình phương trung bình căn
+Dùng để phạt nặng các sai số lớn hoặc các điểm dữ liệu dị biệt (outliers). Giá trị $RMSE$ càng tiến dần về $0$ thể hiện mô hình có độ chính xác và độ ổn định cao.
+
+$$RMSE = \sqrt{\frac{1}{n} \sum_{i=1}^{n} (y_i - \hat{y}_i)^2}$$
+
+### 2. MSE (Mean Squared Error) - Sai số bình phương trung bình
+Là trung bình cộng của bình phương các khoảng cách sai lệch. Độ đo này loại bỏ hoàn toàn dấu của sai số bằng phép bình phương và phóng đại biên độ lỗi, làm nổi bật hiệu suất tổng thể của hàm mất mát.
+
+$$MSE = \frac{1}{n} \sum_{i=1}^{n} (y_i - \hat{y}_i)^2$$
+
+### 3. MAE (Mean Absolute Error) - Sai số tuyệt đối trung bình
+Phản ánh mức độ sai lệch trung bình theo đơn vị thực tế của thời gian thực thi tác vụ.
+
+$$MAE = \frac{1}{n} \sum_{i=1}^{n} |y_i - \hat{y}_i|$$
 
 ## 📁 Cấu trúc Thư mục
 
