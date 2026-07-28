@@ -49,19 +49,16 @@ Hệ thống đã cài đặt và đánh giá 5 thuật toán lập lịch cốt
 ---
 
 ## 📐 Cơ sở Toán học của Support Vector Regression (SVR)
-Vì thời gian thực thi của tác vụ tỷ lệ phi tuyến tính với kích thước dữ liệu đầu vào (độ phức tạp thuật toán $O(N \log N)$ hoặc $O(N^2)$), mô hình áp dụng thuật toán **SVR với hàm nhân Radial Basis Function (RBF Kernel)**.
+
+Vì thời gian thực thi của tác vụ tỷ lệ phi tuyến tính với kích thước dữ liệu đầu vào, mô hình áp dụng thuật toán **SVR với hàm nhân Radial Basis Function (RBF Kernel)**.
 
 Bài toán tối ưu hóa của SVR được phát biểu dưới dạng:
 
-$$\min_{w, b, \xi, \xi^*} \frac{1}{2} \|w\|^2 + C \sum_{i=1}^{n} (\xi_i + \xi_i^*)$$
+$$\min_{w, b, \xi, \xi^{\ast}} \frac{1}{2} \|w\|^2 + C \sum_{i=1}^{n} (\xi_i + \xi_i^{\ast})$$
 
 Thỏa mãn các điều kiện ràng buộc:
 
-$$\begin{cases}
-y_i - w^T \phi(x_i) - b \le \epsilon + \xi_i \\
-w^T \phi(x_i) + b - y_i \le \epsilon + \xi_i^* \\
-\xi_i, \xi_i^* \ge 0
-\end{cases}$$
+$$\begin{cases} y_i - w^T \phi(x_i) - b \le \epsilon + \xi_i \\ w^T \phi(x_i) + b - y_i \le \epsilon + \xi_i^{\ast} \\ \xi_i, \xi_i^{\ast} \ge 0 \end{cases}$$
 
 **Trong đó:**
 * $C$: Tham số phạt chính quy hóa (Regularization parameter).
@@ -69,9 +66,7 @@ w^T \phi(x_i) + b - y_i \le \epsilon + \xi_i^* \\
 * $\phi(x)$: Hàm ánh xạ đặc trưng thông qua **RBF Kernel**:
 
 $$K(x_i, x_j) = \exp\left(-\gamma \|x_i - x_j\|^2\right)$$
-
 ---
-
 ## 🛠️ Hiện thực hóa huấn luyện bằng Scikit-Learn
 
 Mô hình được huấn luyện với quy trình chuẩn hóa dữ liệu và cấu hình siêu tham số tối ưu:
