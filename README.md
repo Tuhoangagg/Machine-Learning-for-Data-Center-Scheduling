@@ -1,60 +1,34 @@
-# Hệ thống Đánh giá & Mô phỏng các Thuật toán Lập lịch CPU (CPU Scheduling Algorithms Benchmark)
+# Tối Ưu Hóa Lập Lịch Tác Vụ Trong Trung Tâm Dữ Liệu Dựa Trên Mô Hình Học Máy SVR (ML-SJF)
 
-Ứng dụng mô phỏng và đo đạc hiệu năng của các thuật toán lập lịch tiến trình (CPU Scheduling) trong Hệ điều hành. Dự án cung cấp công cụ phân tích trực quan, so sánh chi tiết các chỉ số vận hành ($Waiting\ Time$, $Turnaround\ Time$, $CPU\ Utilization$) giữa các thuật toán cổ điển và nâng cao.
+## 💡 Bối cảnh Nghiên cứu & Giải pháp ML-SJF
 
-Phát triển cho học phần **Hệ điều hành (Operating Systems)** / **Nghiên cứu Hệ thống**.
+Trong các trung tâm dữ liệu (Datacenters) điện toán đám mây, hàng ngàn tác vụ (Jobs) liên tục gửi tới hệ thống. 
+* **Thuật toán DRF (Dominant Resource Fairness):** Chia sẻ tài nguyên công bằng nhưng chưa tối ưu hóa tổng thời gian hoàn thành công việc (Job Completion Time - JCT).
+* **Thuật toán SJF (Shortest Job First):** Đã được chứng minh về mặt toán học là tối ưu sản lượng (Throughput-optimal), nhưng đòi hỏi phải biết trước (*A priori*) thời gian chạy thực tế (Runtime) của tác vụ – điều gần như bất khả thi trong hệ thống thực tế.
 
----
-
-## 📸 Demo & Giao diện
-<img width="829" height="543" alt="Demo khi chưa kích hoạt" src="https://github.com/user-attachments/assets/803d59f7-fc4e-499d-a69e-a8c846c6bf39" />
-
-<img width="829" height="537" alt="Demo khi đã kích hoạt" src="https://github.com/user-attachments/assets/460c7025-a293-4281-9cda-9b3e63c23290" />
----
-
-## 📌 Mục lục
-- [Tính năng](#-tính-năng)
-- [Thuật toán & So sánh Lý thuyết](#-thuật-toán--so-sánh-lý-thuyết)
-- [Mô hình Toán học & Chỉ số Đánh giá](#-mô-hình-toán-học--chỉ-số-đánh-giá)
-- [Cấu trúc Thư mục](#-cấu-trúc-thư-mục)
-- [Cài đặt & Cách chạy](#-cài-đặt--cách-chạy)
-- [Kết quả Thực nghiệm & Benchmark](#-kết-quả-thực-nghiệm--benchmark)
-- [Tác giả & Đóng góp](#-tác-giả--đóng-góp)
-- [License](#-license)
+👉 **Giải pháp đề xuất (ML-SJF):** Xây dựng hệ thống mô phỏng phân tán đa luồng (*Multi-threading*) dựa trên kiến trúc **Apache Mesos Framework**. Hệ thống tích hợp mô hình học máy phi tuyến **Support Vector Regression (SVR - RBF Kernel)** để tự động dự đoán Runtime của tác vụ dựa trên quy mô dữ liệu đầu vào, từ đó giải quyết triệt để điểm nghẽn thông tin của SJF cổ điển.
 
 ---
 
-## 🌟 Tính năng
+## 🌟 Tính năng Cốt lõi của Hệ thống
 
-- **Mô phỏng đa thuật toán:** Độc lập hoặc so sánh song song nhiều thuật toán lập lịch CPU.
-- **Hỗ trợ Preemptive & Non-preemptive:** Cho phép tùy chỉnh cơ chế độc quyền hoặc tranh chấp CPU.
-- **Tự động tính toán chỉ số:** Tự động xuất biểu đồ Gantt (Gantt Chart) và bảng thống kê thời gian.
-- **Tùy biến Dataset:** Cho phép nhập danh sách tiến trình ($Process\ ID$, $Arrival\ Time$, $Burst\ Time$, $Priority$) thủ công hoặc sinh ngẫu nhiên theo phân phối.
-- **Xuất báo cáo trực quan:** Xuất đồ thị so sánh hiệu năng dưới dạng hình ảnh (`.png`) và dữ liệu thô (`.csv`).
-
----
-
-## 🧠 Thuật toán & So sánh Lý thuyết
-
-Hệ thống đã cài đặt và đánh giá 5 thuật toán lập lịch cốt lõi:
-
-| Thuật toán | Loại (Type) | Ưu điểm | Nhược điểm / Hạn chế |
-| :--- | :--- | :--- | :--- |
-| **FCFS** (First-Come, First-Served) | Non-Preemptive | Đơn giản, công bằng về thời gian đến | Bị hiệu ứng Convoy Effect (tiến trình ngắn chờ tiến trình dài) |
-| **SJF** (Shortest Job First) | Non-Preemptive | Tối ưu hóa thời gian chờ trung bình ($\bar{W}$) | Có thể gây đói tài nguyên (Starvation) cho tiến trình dài |
-| **SRTF** (Shortest Remaining Time First) | Preemptive | Đạt thời gian phản hồi cực nhanh cho tác vụ ngắn | Chi phí chuyển bối cảnh (Context Switch Overhead) cao |
-| **Round Robin (RR)** | Preemptive | Công bằng, phù hợp hệ thống chia sẻ thời gian | Phụ thuộc hoàn toàn vào Kích thước Lát cắt Thời gian ($Time\ Quantum$) |
-| **Priority Scheduling** | Preemptive / Non-Preemptive | Ưu tiên các tác vụ quan trọng của hệ thống | Dễ gây Starvation (Cần giải pháp Aging để khắc phục) |
-
+- **Kiến trúc Phân tán Master-Agent Đa luồng:**
+  - **Master Node:** Sử dụng `threading.Lock()` chống hiện tượng tranh chấp tài nguyên (*Race Condition*) khi các `Worker Thread` quản lý bảng đăng ký `Agent Registry`.
+  - **Agent Node:** Khởi chạy bất đồng bộ bằng `subprocess`, giả lập 3 loại tác vụ thực tế: `Flask_Sort`, `MapReduce_WordCount`, và `ML_Train`.
+- **Pipeline Tiền xử lý Dữ liệu Chuẩn hóa (Pandas):**
+  - Xử lý 500 mẫu dữ liệu thực nghiệm thô từ nhật ký hệ thống (`dataset.csv`).
+  - Số hóa biến định danh bằng mã hóa **One-Hot Encoding** (`pd.get_dummies()`).
+  - Chuẩn hóa đặc trưng bằng **StandardScaler** ($z = \frac{x - \mu}{\sigma}$).
+- **Bộ Lập lịch Thông minh ML-SJF:** Tự động sắp xếp hàng đợi theo thời gian thực thi dự báo từ AI, tối ưu hóa thời gian chờ và sản lượng xử lý.
 ---
 
 ## 📐 Cơ sở Toán học của Support Vector Regression (SVR)
 
-Vì thời gian thực thi của tác vụ tỷ lệ phi tuyến tính với kích thước dữ liệu đầu vào, mô hình áp dụng thuật toán **SVR với hàm nhân Radial Basis Function (RBF Kernel)**.
+Do thời gian thực thi của tác vụ tỉ lệ phi tuyến tính với kích thước dữ liệu đầu vào (ví dụ độ phức tạp thuật toán $O(N \log N)$ hoặc $O(N^2)$), mô hình áp dụng thuật toán **SVR với hàm nhân Radial Basis Function (RBF Kernel)**.
 
-Bài toán tối ưu hóa của SVR được phát biểu dưới dạng:
+Bài toán tối ưu hóa toán tử SVR được xác định như sau:
 
-$$\min_{w, b, \xi, \xi^{\ast}} \frac{1}{2} \|w\|^2 + C \sum_{i=1}^{n} (\xi_i + \xi_i^{\ast})$$
+$$\min_{w, b, \xi, \xi^{\ast}} \frac{1}{2} \Vert{}w\Vert{}^2 + C \sum_{i=1}^{n} (\xi_i + \xi_i^{\ast})$$
 
 Thỏa mãn các điều kiện ràng buộc:
 
@@ -62,60 +36,127 @@ $$\begin{cases} y_i - w^T \phi(x_i) - b \le \epsilon + \xi_i \\ w^T \phi(x_i) + 
 
 **Trong đó:**
 * $C$: Tham số phạt chính quy hóa (Regularization parameter).
-* $\epsilon$: Phạm vi vùng không phạt sai số (Epsilon-insensitive tube).
+* $\epsilon$: Phạm vi vùng không phạt sai số (*Epsilon-insensitive tube*).
 * $\phi(x)$: Hàm ánh xạ đặc trưng thông qua **RBF Kernel**:
 
-$$K(x_i, x_j) = \exp\left(-\gamma \|x_i - x_j\|^2\right)$$
+$$K(x_i, x_j) = \exp\left(-\gamma \Vert{}x_i - x_j\Vert{}^2\right)$$
+
 ---
-## 🛠️ Hiện thực hóa huấn luyện bằng Scikit-Learn
 
-Mô hình được huấn luyện với quy trình chuẩn hóa dữ liệu và cấu hình siêu tham số tối ưu:
+## 🛠️ Pipeline Tiền xử lý Dữ liệu & Huấn luyện Mô hình
 
-* **Phân chia dữ liệu:** $80\%$ dành cho huấn luyện (Train Set) và $20\%$ dành cho kiểm thử độc lập (Test Set) sử dụng `train_test_split()`.
-* **Chuẩn hóa đặc trưng:** Áp dụng `StandardScaler` để chuyển đổi các đặc trưng về phân phối chuẩn $z = \frac{x - \mu}{\sigma}$ (kỳ vọng bằng $0$, phương sai bằng $1$).
-* **Siêu tham số mô hình SVR (Kernel RBF):**
-  * $C = 100$
-  * $\gamma = 0.1$
-  * $\epsilon = 0.1$
-## 📐 Chỉ số Đánh giá
-Để đánh giá năng lực dự đoán thời gian thực thi tác vụ của mô hình **Support Vector Regression (SVR)**, hệ thống sử dụng ba độ do thống kê tiêu chuẩn để lượng hóa sai số giữa giá trị dự báo ($\hat{y}_i$) và giá trị thực tế ($y_i$):
+### 1. Cấu trúc Tập dữ liệu Thực nghiệm (`dataset.csv`)
+Tập dữ liệu gồm **500 mẫu dữ liệu thực nghiệm** thu thập từ log hệ thống:
+* **Đặc trưng đầu vào (Features - $X$):**
+  * `Job_Type`: Loại tác vụ (`Flask_Sort`, `MapReduce_WordCount`, `ML_Train`).
+  * `Data_Size`: Kích thước dữ liệu đầu vào (đơn vị KB / MB).
+* **Nhãn mục tiêu (Target Label - $y$):**
+  * `Actual_Runtime`: Thời gian chạy thực tế đo bằng hàm `time.time()` (đơn vị: **giây**).
 
-### 1. RMSE (Root Mean Squared Error) - Sai số bình phương trung bình căn
-Dùng để phạt nặng các sai số lớn hoặc các điểm dữ liệu dị biệt (outliers). Giá trị $RMSE$ càng tiến dần về $0$ thể hiện mô hình có độ chính xác và độ ổn định cao.
+### 2. Tiền xử lý với Pandas
+* **One-Hot Encoding:** Mã hóa cột phân loại `Job_Type` thành 3 vector nhị phân ($X_{\text{Flask}}, X_{\text{MapReduce}}, X_{\text{ML}}$) bằng `pd.get_dummies()`.
+* **StandardScaler:** Đưa tất cả dữ liệu đặc trưng về phân phối chuẩn có kỳ vọng $\mu = 0$ và phương sai $\sigma = 1$ ($z = \frac{x - \mu}{\sigma}$) để tránh việc `Data_Size` chênh lệch biên độ áp đảo các biến nhị phân.
 
-$$RMSE = \sqrt{\frac{1}{n} \sum_{i=1}^{n} (y_i - \hat{y}_i)^2}$$
+```python
+import pandas as pd
+from sklearn.model_selection import train_test_split
+from sklearn.preprocessing import StandardScaler
+from sklearn.svm import SVR
 
-### 2. MSE (Mean Squared Error) - Sai số bình phương trung bình
-Là trung bình cộng của bình phương các khoảng cách sai lệch. Độ đo này loại bỏ hoàn toàn dấu của sai số bằng phép bình phương và phóng đại biên độ lỗi, làm nổi bật hiệu suất tổng thể của hàm mất mát.
+# 1. Đọc dữ liệu 500 mẫu thực nghiệm
+df = pd.read_csv('dataset.csv')
 
-$$MSE = \frac{1}{n} \sum_{i=1}^{n} (y_i - \hat{y}_i)^2$$
+# 2. One-Hot Encoding biến định danh
+df_processed = pd.get_dummies(df, columns=['Job_Type'], dtype=float)
 
-### 3. MAE (Mean Absolute Error) - Sai số tuyệt đối trung bình
-Phản ánh mức độ sai lệch trung bình theo đơn vị thực tế của thời gian thực thi tác vụ.
+# 3. Phân tách đặc trưng X và nhãn y
+X = df_processed.drop(columns=['Actual_Runtime'])
+y = df_processed['Actual_Runtime']
 
-$$MAE = \frac{1}{n} \sum_{i=1}^{n} |y_i - \hat{y}_i|$$
+# 4. Phân chia Train/Test set (80/20)
+X_train, X_test, y_train, y_test = train_test_split(X, y, test_test_size=0.2, random_state=42)
 
-## 📁 Cấu trúc Thư mục
+# 5. Chuẩn hóa đặc trưng
+scaler = StandardScaler()
+X_train_scaled = scaler.fit_transform(X_train)
+X_test_scaled = scaler.transform(X_test)
+```
+---
+
+## 📊 Kết quả Thực nghiệm & Đánh giá Hiệu năng
+
+### 1. Đánh giá Độ chính xác của Mô hình AI (SVR-RBF)
+
+Các chỉ số thống kê sai số dự đoán được tính toán thông qua module `sklearn.metrics` trên tập kiểm thử ($20\%$ Test Set):
+
+| Chỉ số thống kê đánh giá | Công thức toán học | Giá trị kiểm định thực nghiệm |
+| :--- | :---: | :---: |
+| **Mean Absolute Error (MAE)** | $MAE = \frac{1}{n} \sum_{i=1}^{n} \|y_i - \hat{y}_i\|$ | **0.2146 giây** ⚡ |
+| **Mean Squared Error (MSE)** | $MSE = \frac{1}{n} \sum_{i=1}^{n} (y_i - \hat{y}_i)^2$ | **0.0765 giây** |
+| **Root Mean Squared Error (RMSE)** | $RMSE = \sqrt{\frac{1}{n} \sum_{i=1}^{n} (y_i - \hat{y}_i)^2}$ | **0.2766 giây** |
+
+> **Nhận xét thực nghiệm:**  
+> Chỉ số $MAE$ đạt mức cực kỳ lý tưởng ($0.2146\text{s}$), phản ánh khoảng cách giữa thời gian hệ thống dự đoán và thời gian chạy thực tế gần như không đáng kể. Điều này tạo tiền đề cốt lõi giúp thuật toán ML-SJF xếp thứ tự hàng đợi một cách chuẩn xác.
+
+---
+
+### 2. Đánh giá Hiệu năng Lập lịch Hệ thống (System Metrics)
+
+Thử nghiệm đối chứng giữa bộ lập lịch đề xuất **ML-SJF** với hai thuật toán nền tảng là **DRF** (Dominant Resource Fairness) và **SJF tiêu chuẩn** (không dùng AI):
+
+| Thuật toán Lập lịch | Thời gian chờ trung bình (*Avg Wait Time*) | Sản lượng hệ thống (*Throughput*) |
+| :--- | :---: | :---: |
+| **DRF** (Cân bằng tài nguyên) | 14.2 giây | 35 tác vụ / phút |
+| **SJF tiêu chuẩn** (Lý thuyết) | 18.5 giây | 28 tác vụ / phút |
+| **ML-SJF (Đề xuất)** 🚀 | **5.3 giây** | **58 tác vụ / phút** |
+
+#### 📈 Trực quan hóa Biểu đồ So sánh
+
+<div align="center">
+
+| Đồ thị Thời gian chờ Trung bình | Đồ thị Sản lượng Hệ thống (Throughput) |
+| :---: | :---: |
+| ![Average Wait Time](assets/wait_time_chart.png) | ![Throughput Chart](assets/throughput_chart.png) |
+
+</div>
+
+> **Đánh giá Đột phá:**
+> * **Thời gian chờ trung bình:** ML-SJF tối ưu tốt hơn gấp **~2.7 lần** so with DRF (5.3s vs 14.2s) và khắc phục hoàn toàn hiện tượng phán đoán sai lệch gây nghẽn dòng của SJF cổ điển (18.5s).
+> * **Sản lượng hệ thống:** Tăng trưởng vượt bậc đạt **58 tác vụ/phút** (cao hơn $65.7\%$ so với DRF và $107\%$ so với SJF tiêu chuẩn).
+---
+
+## 📁 Cấu trúc Thư mục Dự án
 
 ```text
-Machine-Learning-for-Data-Center-Scheduling/
-├── src/                 # Source code chính của chương trình
-│   ├── algorithms/      # Cài đặt các thuật toán (FCFS, SJF, RR, SRTF, Priority)
-│   ├── models/          # Định nghĩa cấu trúc Process, CPU State
-│   └── utils/           # Helper tính toán chỉ số và xuất đồ thị
-│
-├── docs/                # Báo cáo nghiên cứu chi tiết (PDF) & Slide
-│   └── OS_CPU_Scheduling_Report.pdf
-│
-├── assets/              # Chứa ảnh chụp biểu đồ kết quả (dùng cho README)
-│   └── cpu_scheduling_demo.png
-│
-├── logs/ / datasets/    # Dữ liệu thử nghiệm đầu vào và kết quả CSV
-├── README.md            # Tài liệu hướng dẫn dự án
-└── .gitignore           # File cấu hình bỏ qua file rác khi Git push<img width="2400" height="1200" alt="wait_time_chart" src="https://github.com/user-attachments/assets/3e2a0e95-81e1-4409-9990-123089bac850" />
-<img width="2400" height="1200" alt="throughput_chart" src="https://github.com/user-attachments/assets/1616c57f-2793-4594-a433-18f36481f882" />
-<img width="384" height="102" alt="Job lúc sau" src="https://github.com/user-attachments/assets/b33423b2-cf5e-4307-933a-c5d40ddc7a4b" />
-<img width="386" height="102" alt="Job ban đầu" src="https://github.com/user-attachments/assets/6ac14af6-19eb-4918-9fa7-76a085b699a7" />
-<img width="829" height="537" alt="Demo khi đã kích hoạt" src="https://github.com/user-attachments/assets/ba0e83d9-7e41-4057-ab64-cba5af31ce20" />
-<img width="829" height="543" alt="Demo khi chưa kích hoạt" src="https://github.com/user-attachments/assets/258a2a7b-b1dc-4322-8973-22ab4820daa9" />
-<img width="829" height="543" alt="Demo khi chưa kích hoạt" src="https://github.com/user-attachments/assets/748332bd-8389-4dc2-bb96-cb6af46a8124" />
+Machine-Learning-for-Data-Center-Scheduling/<img width="2400" height="1200" alt="wait_time_chart" src="https://github.com/user-attachments/assets/5fa42ab1-5fab-41c7-8ff7-a282852238b9" />
+<img width="2400" height="1200" alt="throughput_chart" src="https://github.com/user-attachments/assets/2243db6b-3982-4766-926f-32eb17aa99a4" />
+
+├── source/                  # Mã nguồn chính của hệ thống
+│   ├── dataset.csv          # File dữ liệu 500 mẫu thực nghiệm thô
+│   ├── train_svr.py         # Script huấn luyện & đánh giá mô hình SVR
+│   ├── master.py            # Node Master điều khiển & lập lịch ML-SJF (Multi-threading)
+│   └── agent.py             # Node Agent thực thi tiến trình bất đồng bộ (Subprocess)
+├── docs/                    # Tài liệu và Báo cáo nghiên cứu
+│   └── Báo_cáo_BTL_HĐH.pdf # Báo cáo chi tiết định dạng PDF
+├── assets/                  # Hình ảnh minh họa & Đồ thị thực nghiệm cho README
+│   ├── wait_time_chart.png
+│   └── throughput_chart.png
+├── .gitignore
+└── README.md                # Tài liệu giới thiệu & Hướng dẫn dự án
+```
+## 🚀 Hướng dẫn Cài đặt & Chạy Dự án
+
+### 1. Yêu cầu Môi trường
+* **Python:** Phiên bản 3.8 trở lên.
+* **Các thư viện phụ thuộc:** `pandas`, `scikit-learn`, `numpy`, `matplotlib`.
+
+### 2.Bước cài đặt
+ **Clone repository về máy local:**
+   ```bash
+   git clone [https://github.com/Tuhoangagg/Machine-Learning-for-Data-Center-Scheduling.git](https://github.com/Tuhoangagg/Machine-Learning-for-Data-Center-Scheduling.git)
+   cd Machine-Learning-for-Data-Center-Scheduling
+   pip install pandas scikit-learn numpy matplotlib
+   python source/train_svr.py
+   python source/master.py
+   python source/agent.py
+  
