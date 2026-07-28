@@ -7,19 +7,13 @@ Phát triển cho học phần **Hệ điều hành (Operating Systems)** / **Ng
 ---
 
 ## 📸 Demo & Giao diện
-![CPU Scheduler Benchmark Showcase](assets/Demo khi chưa kích hoạt.png)
-![CPU Scheduler Benchmark Showcase](assets/Demo khi đã kích hoạt.png)
+<img width="829" height="543" alt="Demo khi chưa kích hoạt" src="https://github.com/user-attachments/assets/803d59f7-fc4e-499d-a69e-a8c846c6bf39" />
 
+<img width="829" height="537" alt="Demo khi đã kích hoạt" src="https://github.com/user-attachments/assets/460c7025-a293-4281-9cda-9b3e63c23290" />
 ---
 
 ## 📌 Mục lục
 - [Tính năng](#-tính-năng)<img width="2400" height="1200" alt="wait_time_chart" src="https://github.com/user-attachments/assets/277e7ed9-e603-4a28-afed-2cb5e3d53418" />
-<img width="2400" height="1200" alt="throughput_chart" src="https://github.com/user-attachments/assets/c079775f-6c35-4ed1-a1d3-a079ab7b0fcd" />
-<img width="384" height="102" alt="Job lúc sau" src="https://github.com/user-attachments/assets/52104b19-4af0-4313-8176-4091979fd66a" />
-<img width="386" height="102" alt="Job ban đầu" src="https://github.com/user-attachments/assets/48d56d4e-b00a-4c34-82ef-c6473cc7964f" />
-<img width="829" height="537" alt="Demo khi đã kích hoạt" src="https://github.com/user-attachments/assets/460c7025-a293-4281-9cda-9b3e63c23290" />
-<img width="829" height="543" alt="Demo khi chưa kích hoạt" src="https://github.com/user-attachments/assets/803d59f7-fc4e-499d-a69e-a8c846c6bf39" />
-
 - [Thuật toán & So sánh Lý thuyết](#-thuật-toán--so-sánh-lý-thuyết)
 - [Mô hình Toán học & Chỉ số Đánh giá](#-mô-hình-toán-học--chỉ-số-đánh-giá)
 - [Cấu trúc Thư mục](#-cấu-trúc-thư-mục)
